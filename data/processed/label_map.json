@@ -1,0 +1,57 @@
+{
+  "y": {
+    "0": "Lying",
+    "1": "Stationary",
+    "2": "Walking",
+    "3": "Running",
+    "4": "Stairs"
+  },
+  "y_to_raw_activities": {
+    "0": [
+      "lying"
+    ],
+    "1": [
+      "sitting",
+      "standing"
+    ],
+    "2": [
+      "walking"
+    ],
+    "3": [
+      "running"
+    ],
+    "4": [
+      "climbingup",
+      "climbingdown"
+    ]
+  },
+  "y_raw": {
+    "0": "climbingdown",
+    "1": "climbingup",
+    "2": "jumping",
+    "3": "lying",
+    "4": "running",
+    "5": "sitting",
+    "6": "standing",
+    "7": "walking"
+  },
+  "dropped_activities": [
+    "jumping"
+  ],
+  "position": "upperarm",
+  "channels": [
+    "ax",
+    "ay",
+    "az",
+    "gx",
+    "gy",
+    "gz"
+  ],
+  "units": {
+    "acc": "g",
+    "gyr": "dps"
+  },
+  "fs_hz": 104.0,
+  "window_samples": 208,
+  "stride_samples": 104
+}

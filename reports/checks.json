@@ -1,0 +1,318 @@
+{
+  "splits": {
+    "train": {
+      "n_windows": 42052,
+      "X_shape": [
+        42052,
+        208,
+        6
+      ],
+      "dtypes": {
+        "X": "float32",
+        "y": "int64",
+        "y_raw": "int64",
+        "subject": "int64"
+      },
+      "subjects": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        7,
+        8,
+        9,
+        11,
+        13
+      ],
+      "hours_no_overlap": 11.681,
+      "per_class": {
+        "Lying": 6002,
+        "Stationary": 11885,
+        "Walking": 6071,
+        "Running": 7048,
+        "Stairs": 11046
+      }
+    },
+    "val": {
+      "n_windows": 7818,
+      "X_shape": [
+        7818,
+        208,
+        6
+      ],
+      "dtypes": {
+        "X": "float32",
+        "y": "int64",
+        "y_raw": "int64",
+        "subject": "int64"
+      },
+      "subjects": [
+        6,
+        10
+      ],
+      "hours_no_overlap": 2.172,
+      "per_class": {
+        "Lying": 1198,
+        "Stationary": 2436,
+        "Walking": 1182,
+        "Running": 1227,
+        "Stairs": 1775
+      }
+    },
+    "test": {
+      "n_windows": 11841,
+      "X_shape": [
+        11841,
+        208,
+        6
+      ],
+      "dtypes": {
+        "X": "float32",
+        "y": "int64",
+        "y_raw": "int64",
+        "subject": "int64"
+      },
+      "subjects": [
+        12,
+        14,
+        15
+      ],
+      "hours_no_overlap": 3.289,
+      "per_class": {
+        "Lying": 1785,
+        "Stationary": 3516,
+        "Walking": 1834,
+        "Running": 1786,
+        "Stairs": 2920
+      }
+    }
+  },
+  "checks": [
+    {
+      "name": "форми і типи масивів відповідають специфікації",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "немає NaN/inf",
+      "ok": true,
+      "detail": "{'train': 0, 'val': 0, 'test': 0}"
+    },
+    {
+      "name": "учасники не перетинаються між вибірками",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "у кожного учасника є upperarm для кожної активності",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "у val і test присутні всі класи",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "кількість вікон по класах порахована",
+      "ok": true,
+      "detail": "train=42052 вікон"
+    },
+    {
+      "name": "|acc| для статичних класів у межах 0.85–1.15 g",
+      "ok": true,
+      "detail": "{'train/Lying': 0.9851, 'val/Lying': 0.9758, 'test/Lying': 0.976, 'train/Stationary': 1.0312, 'val/Stationary': 1.0361, 'test/Stationary': 1.0383}"
+    },
+    {
+      "name": "діапазони каналів у межах ±16.0 g / ±2000.0 °/с",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "повторний запуск дає ідентичні файли",
+      "ok": true,
+      "detail": "усі хеші збігаються"
+    }
+  ],
+  "subjects_per_split": {
+    "train": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      7,
+      8,
+      9,
+      11,
+      13
+    ],
+    "val": [
+      6,
+      10
+    ],
+    "test": [
+      12,
+      14,
+      15
+    ]
+  },
+  "raw_frequency_hz": {
+    "min": 49.937,
+    "max": 101.427,
+    "mean": 50.176,
+    "outside_tolerance": [
+      101.43
+    ]
+  },
+  "records": 117,
+  "segments": 1394,
+  "static_acc_magnitude_g": {
+    "train/Lying": 0.9851,
+    "val/Lying": 0.9758,
+    "test/Lying": 0.976,
+    "train/Stationary": 1.0312,
+    "val/Stationary": 1.0361,
+    "test/Stationary": 1.0383
+  },
+  "channel_ranges": {
+    "train": {
+      "ax": [
+        -2.323,
+        2.41
+      ],
+      "ay": [
+        -2.287,
+        2.565
+      ],
+      "az": [
+        -2.083,
+        2.384
+      ],
+      "gx": [
+        -399.085,
+        347.759
+      ],
+      "gy": [
+        -692.289,
+        670.305
+      ],
+      "gz": [
+        -532.72,
+        435.597
+      ]
+    },
+    "val": {
+      "ax": [
+        -2.232,
+        2.333
+      ],
+      "ay": [
+        -1.984,
+        2.402
+      ],
+      "az": [
+        -1.79,
+        2.436
+      ],
+      "gx": [
+        -265.854,
+        297.175
+      ],
+      "gy": [
+        -662.808,
+        573.855
+      ],
+      "gz": [
+        -518.888,
+        490.376
+      ]
+    },
+    "test": {
+      "ax": [
+        -2.435,
+        2.45
+      ],
+      "ay": [
+        -1.343,
+        2.487
+      ],
+      "az": [
+        -2.113,
+        2.426
+      ],
+      "gx": [
+        -390.478,
+        472.457
+      ],
+      "gy": [
+        -630.36,
+        619.027
+      ],
+      "gz": [
+        -586.191,
+        347.169
+      ]
+    }
+  },
+  "file_hashes": {
+    "label_map.json": "41fb4259860e6db8ae7a1f852191082b577d3bea31e6ca70afa1c4461c575cd7",
+    "norm_stats.json": "1625a950c1c7b2a91fe711bcf52af39d3afc9f2d6c9175a389a2428b6403f805",
+    "test.npz": "39398db82fc0240d3279ccf8a1cf88c851c0665b4a568a762777822600849d13",
+    "train.npz": "b2816c23afe486be9917cbdc903661f45ce563b09c6dc9dae176ba42582508c2",
+    "val.npz": "a51df06b9d689b76c62a78926086d25b95f1240bbb2f4a8052816775d0fa4451"
+  },
+  "config": {
+    "position": "upperarm",
+    "channels": [
+      "ax",
+      "ay",
+      "az",
+      "gx",
+      "gy",
+      "gz"
+    ],
+    "units": {
+      "acc": "g",
+      "gyr": "dps"
+    },
+    "fs_hz": 104.0,
+    "window_samples": 208,
+    "stride_samples": 104,
+    "classes": [
+      "Lying",
+      "Stationary",
+      "Walking",
+      "Running",
+      "Stairs"
+    ],
+    "dropped": [
+      "jumping"
+    ],
+    "split": {
+      "train": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        7,
+        8,
+        9,
+        11,
+        13
+      ],
+      "val": [
+        6,
+        10
+      ],
+      "test": [
+        12,
+        14,
+        15
+      ]
+    },
+    "seed": 42
+  }
+}

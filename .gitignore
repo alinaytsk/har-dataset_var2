@@ -1,0 +1,22 @@
+# Сирі та проміжні дані — не комітяться (data/raw ≈ 1.4 ГБ, завантажується скриптом)
+data/raw/
+data/interim/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# Тимчасові файли й кеш
+*.tmp
+*.part
+*.log
+.pytest_cache/
+.mypy_cache/
+
+# ОС та редактори
+.DS_Store
+Thumbs.db
+.idea/

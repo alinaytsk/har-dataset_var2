@@ -1,0 +1,80 @@
+# Конфіг ST model zoo для навчання на датасеті har-dataset (RealWorld, upperarm).
+# Класти замість human_activity_recognition/user_config.yaml.
+#
+# Відмінності від стокового конфігу і чому саме так — у README.md поруч.
+
+general:
+  project_name: har_realworld_upperarm
+  logs_dir: logs
+  saved_models_dir: saved_models
+  display_figures: True
+  global_seed: 123
+  gpu_memory_limit: 4
+
+operation_mode: training
+# choices=['benchmarking', 'deployment', 'evaluation', 'training', 'chain_tb']
+# Починати з 'training'. 'deployment' НЕ використовувати: він збирає застосунок
+# ST, який робить власне препроцесування на платі, а в нас воно своє.
+
+dataset:
+  dataset_name: realworld_npz          # завантажувач із цього пакета
+  class_names: [Lying, Stationary, Walking, Running, Stairs]
+  num_classes: 5                       # обов'язково: модель бере саме звідси
+  # Шлях до теки data/processed репозиторію har-dataset (можна і до train.npz).
+  training_path: ../har-dataset/data/processed
+  validation_path:                     # не використовується: спліт у самих файлах
+  test_path:                           # не використовується
+  validation_split: 0.0                # ігнорується завантажувачем
+  test_split: 0.0                      # ігнорується завантажувачем
+  seed: 123
+
+preprocessing:
+  # ОБОВ'ЯЗКОВО False. Обертання по гравітації прибирає постійну складову
+  # акселерометра, якою Lying відрізняється від Stationary, і прошивка його
+  # не робить. Завантажувач впаде з помилкою, якщо тут True.
+  gravity_rot_sup: False
+  # True = застосувати mean/std з norm_stats.json (ті самі, що в прошивці).
+  # Самі дані у файлах не нормалізовані, тому False лишить сирі g і °/с.
+  normalization: True
+
+model:
+  model_name: har_cnn                  # модель із цього пакета
+  input_shape: (208, 6, 1)             # 208 відліків = 2.0 с при 104 Гц, 6 каналів
+  dropout: 0.3
+
+training:
+  dropout: 0.3
+  batch_size: 128
+  epochs: 200
+  optimizer:
+    Adam:
+      learning_rate: 0.001
+  callbacks:
+    ReduceLROnPlateau:
+      monitor: val_accuracy
+      mode: max
+      factor: 0.5
+      patience: 20
+      min_lr: 1.0e-05
+    EarlyStopping:
+      monitor: val_accuracy
+      mode: max
+      restore_best_weights: true
+      patience: 40
+
+tools:
+  stedgeai:
+    optimization: balanced
+    on_cloud: True
+    path_to_stedgeai: C:/ST/STEdgeAI/<x.y>/Utilities/windows/stedgeai.exe
+  path_to_cubeIDE: C:/ST/STM32CubeIDE_<*.*.*>/STM32CubeIDE/stm32cubeide.exe
+
+benchmarking:
+  board: B-U585I-IOT02A
+
+mlflow:
+  uri: ./tf/src/experiments_outputs/mlruns
+
+hydra:
+  run:
+    dir: ./tf/src/experiments_outputs/${now:%Y_%m_%d_%H_%M_%S}

@@ -1,0 +1,119 @@
+# ╔══════════════════════════════════════════════════════════════════════════╗
+# ║  Єдине джерело параметрів датасету. Скрипти не містять власних значень.  ║
+# ╚══════════════════════════════════════════════════════════════════════════╝
+
+dataset:
+  name: "RealWorld (HAR) 2016"
+  home: "https://www.uni-mannheim.de/dws/research/projects/activity-recognition/dataset/dataset-realworld/"
+  # Пряма база для окремих csv-архівів (перевірено 2026-10-30):
+  #   {base_url}/s{N}/data/{sensor}_{activity}_csv.zip
+  base_url: "https://www.uni-mannheim.de/media/Einrichtungen/dws/Files_Research/Projects/sensor/realworld"
+  citation: >-
+    Timo Sztyler, Heiner Stuckenschmidt. On-body Localization of Wearable Devices:
+    An Investigation of Position-Aware Activity Recognition.
+    IEEE International Conference on Pervasive Computing and Communications
+    (PerCom 2016), Sydney, Australia.
+  subjects: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+
+  # Беремо ТІЛЬКИ цю позицію на тілі (трекер носиться вище ліктя).
+  position: upperarm
+
+  # Беремо ТІЛЬКИ ці два сенсори. archive — префікс у назві zip на сайті,
+  # file_aliases — як сенсор названий у csv всередині архіву.
+  sensors:
+    acc:
+      archive: acc
+      file_aliases: [acc, accelerometer]
+      raw_unit: "m/s^2"          # перевірено на даних, див. reports/checks.md
+      out_unit: "g"
+    gyr:
+      archive: gyr
+      file_aliases: [gyr, gyroscope]
+      raw_unit: "rad/s"
+      out_unit: "dps"
+
+  # Активності, які завантажуємо й обробляємо (jumping свідомо не завантажується).
+  activities_used: [climbingdown, climbingup, lying, running, sitting, standing, walking]
+  activities_dropped: [jumping]
+
+constants:
+  g: 9.80665                     # м/с² на 1 g
+
+processing:
+  trim_seconds: 3.0              # відрізати з початку і кінця кожного запису
+  max_gap_seconds: 0.5           # розрив у мітках часу > цього -> окремі сегменти
+  expected_source_hz: 50         # заявлена частота RealWorld (фактична 49.6-50.8)
+  freq_tolerance_hz: 2.0         # попередження, якщо фактична частота виходить за межі
+  source_grid_hz: 50             # проміжна рівномірна сітка (прибирає джитер міток)
+  target_hz: 104                 # під ODR прошивки
+  resample_up: 52                # 50 * 52/25 = 104 Гц (scipy.signal.resample_poly)
+  resample_down: 25
+  interp: linear                 # інтерполяція на проміжну сітку: linear | nearest
+  min_segment_seconds: 2.0       # коротші неперервні сегменти відкидаємо
+
+  # Окремі записи RealWorld писалися швидше за 50 Гц (напр. гіроскоп
+  # s14/climbingdown_p1 — ~101 Гц, крок 2 мс). Пряма інтерполяція на 50 Гц
+  # дала б аліасинг, тому перед нею такі записи фільтруються ФНЧ.
+  antialias:
+    enabled: true
+    faster_than_ratio: 1.2       # вмикається, якщо фактична частота > 1.2 × source_grid_hz
+    cutoff_ratio: 0.4            # зріз = 0.4 × source_grid_hz (20 Гц при 50 Гц)
+    order: 4
+
+channels: [ax, ay, az, gx, gy, gz]
+
+windows:
+  size_samples: 208              # 2.0 с при 104 Гц
+  stride_samples: 104            # перекриття 50 %
+  drop_incomplete: true          # неповне останнє вікно не доповнюємо
+
+labels:
+  # y_raw — індекс у цьому списку (оригінальні класи RealWorld, порядок фіксований).
+  raw_classes: [climbingdown, climbingup, jumping, lying, running, sitting, standing, walking]
+  # y — цільовий клас трекера.
+  classes:
+    - {id: 0, name: Lying,      raw: [lying]}
+    - {id: 1, name: Stationary, raw: [sitting, standing]}
+    - {id: 2, name: Walking,    raw: [walking]}
+    - {id: 3, name: Running,    raw: [running]}
+    - {id: 4, name: Stairs,     raw: [climbingup, climbingdown]}
+  dropped: [jumping]
+
+# Розділення СТРОГО за людьми: учасник не може бути у двох вибірках.
+split:
+  train: [1, 2, 3, 4, 5, 7, 8, 9, 11, 13]
+  val:   [6, 10]
+  test:  [12, 14, 15]
+
+# Нормалізація у .npz НЕ застосовується; статистики лише рахуються з train
+# і зберігаються окремо в norm_stats.json.
+normalization:
+  write_into_npz: false
+  stats_from: train
+
+checks:
+  static_classes: [Lying, Stationary]
+  static_acc_g_range: [0.85, 1.15]   # |acc| у спокої має бути ≈ 1 g
+  acc_limit_g: 16.0                  # фізично можливий діапазон смартфонного датчика
+  gyr_limit_dps: 2000.0
+
+# Параметри, які мають збігатися з прошивкою. scripts/export_firmware_constants.py
+# генерує з них C-заголовок, щоб плата і датасет не розходилися вручну.
+firmware:
+  # ФНЧ перед інференсом на платі. Джерело датасету — 50 Гц, тож реального
+  # сигналу вище 25 Гц у навчальних даних немає; без цього фільтра плата подасть
+  # у модель шум у смузі, якої модель ніколи не бачила.
+  lowpass_hz: 25.0
+  lowpass_order: 4               # 2 біквади (SOS), ~-24 дБ на Найквісті 52 Гц
+  # Тека Core прошивки: заголовок пишеться в {core_dir}/Inc/{header_name},
+  # звідти ж тести беруть har_preproc.c для перевірки на хості.
+  core_dir: "../activity_tracker_STM32_var2/firmware/activity_tracker_fw/Core"
+  header_name: har_model_config.h
+
+paths:
+  raw: data/raw
+  interim: data/interim
+  processed: data/processed
+  reports: reports
+
+seed: 42
